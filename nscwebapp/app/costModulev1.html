@@ -1,0 +1,937 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.10/c3.min.css" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/ionic/1.2.1/css/ionic.min.css" rel="stylesheet">
+        <style>
+            .gs-current-scenario-cont{
+
+            }
+            .gs-current-scenario-cont div.col{
+                border:1px solid #cfcfcf;
+                background:#fff;
+            }
+            .gs-base-scenario-cont{
+
+            }
+            .gs-base-scenario-cont div.col{
+                border:1px solid #cfcfcf;
+                background:#e4e5e7;
+            }
+        </style>
+    </head>
+    <!--<body ng-app="nscwebappApp">-->
+    <body onload="initialize();">
+        <!--[if lte IE 8]>
+          <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <!-- Add your site or application content here -->
+        <div class="header">
+            <div class="navbar navbar-default" role="navigation">
+                <div class="container">
+                    <div class="navbar-header">
+
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#js-navbar-collapse">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+
+                        <a class="navbar-brand" href="#/">nscwebapp</a>
+                    </div>
+
+                    <div class="collapse navbar-collapse" id="js-navbar-collapse">
+
+                        <ul class="nav navbar-nav">
+                            <li class="active"><a href="#/">Capital Cost Graphs</a></li>
+                            <li><a ng-href="#/caprsltsgraph">Tests</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div ng-view=""></div>
+        </div>
+
+        <div class="footer">
+            <div class="container">
+                <p><span class="glyphicon glyphicon-heart"></span> from the Yeoman team</p>
+            </div>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.1/lodash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.12/d3.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.10/c3.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.8/angular.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.8/angular-route.min.js"></script>
+
+        <script type="text/ng-template" id="main.html">
+            <div class="container-fluid gs-chart-container capital-cost-container">
+                <h3 class="text-center">Estimate of Probable Capital Costs</h3>
+                <br><br>
+
+                <div class="row">
+                    <div class="col col-lg-6">
+                        <h4 class="text-center">Current Scenario</h4>
+                        <div id="bc-pie"></div>
+                    </div>
+                    <div class="col col-lg-6">
+                        <h4 class="text-center">Baseline Scenario</h4>
+                        <div id="ac-pie"></div>
+                    </div>
+                </div>  
+                <div class="row">
+                    <div class="col col-lg-6">
+                        <div id="bc-pie-dollar"></div>
+                    </div>
+                    <div class="col col-lg-6">
+                        <div id="ac-pie-dollar"></div>
+                    </div>
+                </div>  
+
+                <div class="row">
+                    <div class="col col-lg-6">
+                        <div id="bc-bar"></div>
+                    </div>
+                    <div class="col col-lg-6">
+                        <div id="ac-bar"></div>
+                    </div>
+                </div>  
+            </div>
+            <br><br>
+            <div class="container-fluid gs-chart-container maintenance-cost-container">
+                <h3 class="text-center">Estimate of Probable Maintenance Costs</h3>
+                    <br><br>
+                <div class="row">
+                    <div class="col col-lg-6">
+                        <h4 class="text-center">Current Scenario</h4>
+                        <div id="bm-pie"></div>
+                    </div>
+                    <div class="col col-lg-6">
+                        <h4 class="text-center">Baseline Scenario</h4>
+                        <div id="am-pie"></div>
+                    </div>
+                </div>  
+                <div class="row">
+                    <div class="col col-lg-6">
+                        <div id="bm-pie-dollar"></div>
+                    </div>
+                    <div class="col col-lg-6">
+                        <div id="am-pie-dollar"></div>
+                    </div>
+                </div>  
+
+                <div class="row">
+                    <div class="col col-lg-6">
+                        <div id="bm-bar"></div>
+                    </div>
+                    <div class="col col-lg-6">
+                        <div id="am-bar"></div>
+                    </div>
+                </div>  
+            </div>
+        </script>
+        <script type="text/javascript">
+                     function initialize() {
+        angular.element(document).ready(function() {
+    angular.bootstrap(document, ["nscwebappApp"]);
+});
+}
+
+        /***** Begin app.js *****/
+        'use strict';
+
+/**
+ * @ngdoc overview
+ * @name nscwebappApp
+ * @description
+ * # nscwebappApp
+ *
+ * Main module of the application.
+ */
+angular
+  .module('nscwebappApp', [
+    'ngRoute'
+  ])
+  .config(function ($routeProvider) {
+    $routeProvider
+      .when('/', {
+        templateUrl: 'main.html',
+        controller: 'MainCtrl',
+        controllerAs: 'main'
+      })
+      .when('/about', {
+        templateUrl: 'views/about.html',
+        controller: 'AboutCtrl',
+        controllerAs: 'about'
+      })
+      .otherwise({
+        redirectTo: '/'
+      });
+  });
+
+        /***** End app.js *****/
+/***** BEGIN controller *****/
+angular.module('nscwebappApp')
+        .controller('MainCtrl', function (designComplexity, costEngineSrvc,chartengine) {
+            chartengine.mockupCharts();
+        });
+        /***** END controller *****/
+
+        /***** Begin services.js *****/
+        
+        /* BEGIN designcomplexity.js */
+        angular.module('nscwebappApp')
+        .factory('designComplexity', function () {
+
+            //lookup table of assignments used to compute design complexity based on work done in Phase I and
+            //documented in the final report. These values are multiplied with user input
+            //complexity values, summed and the largest number indicates the design complexity
+            //if there is a tie, the higher complexity wins
+            var categoricalStrikeAssignments = {
+                isNewDevelopment: {simple: 1, typical: 0, complex: 0},
+                isReDevelopment: {simple: 0, typical: 1, complex: 1},
+                hasPretreatment: {simple: 0, typical: 1, complex: 1},
+                siteSuitability: [{simple: 0, typical: 0, complex: 1}, {simple: 0, typical: 1, complex: 0}, {simple: 1, typical: 0, complex: 0}],
+                topography: [{simple: 1, typical: 0, complex: 0}, {simple: 1, typical: 1, complex: 0}, {simple: 0, typical: 1, complex: 0}, {simple: 0, typical: 0, complex: 1}],
+                soilType: [{simple: 1, typical: 0, complex: 0}, {simple: 0, typical: 1, complex: 0}, {simple: 0, typical: 0, complex: 1}, {simple: 0, typical: 0, complex: 1}]
+            };
+
+            //begin psuedo enums
+            var designComplexity = {
+                invalid: -1,
+                simple: 0,
+                typical: 1,
+                complex: 2
+            };
+            var suitability = Object.freeze({
+                poor: 0,
+                moderate: 1,
+                excellent: 2
+            });
+            var topography = Object.freeze({
+                flat: 0,
+                moderateFlat: 1,
+                moderateSteep: 2,
+                steep: 3
+            });
+            var soilType = Object.freeze({
+                A: 0,
+                B: 1,
+                C: 2,
+                D: 3
+            });
+
+            var defaultComplexityVars = {
+                isNewDevelopment: false,
+                isReDevelopment: true,
+                hasPretreatment: true,
+                siteSuitability: suitability.moderate,
+                topography: topography.steep,
+                soilType: soilType.A
+            };
+
+            // Public API here
+            var service = {
+                validateInputs: validateInputs,
+                designComplexity: designComplexity,
+                computeDesignComplexity: computeDesignComplexity,
+                
+            };
+            return service;
+            ///////////////////////////
+            function validateInputs(options) {
+                options = angular.extend({}, defaultComplexityVars, options);
+                var flag = (options.isNewDevelopment !== undefined && typeof (options.isNewDevelopment) === 'boolean');
+
+                flag = flag && (options.isReDevelopment !== undefined && typeof (options.isReDevelopment) === 'boolean');
+
+                flag = flag && (options.isReDevelopment === !options.isNewDevelopment);
+
+                flag = flag && (options.hasPretreatment !== undefined && typeof (options.hasPretreatment) === 'boolean');
+
+                flag = flag && (options.siteSuitability !== undefined && typeof (options.siteSuitability) === 'number' &&
+                        options.siteSuitability >= suitability.poor && options.siteSuitability <= suitability.excellent);
+
+                flag = flag && (options.topography !== undefined && typeof (options.topography) === 'number' &&
+                        options.topography >= topography.flat && options.topography <= topography.steep);
+                flag = flag && (options.soilType !== undefined && typeof (options.soilType) === 'number' &&
+                        options.soilType >= soilType.A && options.soilType <= soilType.D);
+                return flag;
+            }
+
+            function computeDesignComplexity(options) {
+                var flag = validateInputs(options);
+                var tempRow;
+
+                //complexity strike sum tally used to hold sums for simple, typical and complex
+                //var strikes = [0, 0, 0];
+                var strikes = {simple: 0, typical: 0, complex: 0};
+
+                if (flag) {
+
+                    //sum strikes for new development /redevelopment
+                    if (options.isNewDevelopment) {
+                        $.each(categoricalStrikeAssignments.isNewDevelopment, function (idx, val) {
+                            strikes[idx] = strikes[idx] + val;
+                        });
+                    } else {
+                        $.each(categoricalStrikeAssignments.isReDevelopment, function (idx, val) {
+                            strikes[idx] = strikes[idx] + val;
+                        });
+                    }
+
+                    //sum strikes for new development /redevelopment
+                    if (options.hasPretreatment) {
+                        $.each(categoricalStrikeAssignments.hasPretreatment, function (idx, val) {
+                            strikes[idx] = strikes[idx] + val;
+                        });
+                    }
+
+                    //sum strikes for suitability
+                    tempRow = categoricalStrikeAssignments.siteSuitability[options.siteSuitability];
+                    $.each(tempRow, function (idx, val) {
+                        strikes[idx] = strikes[idx] + val;
+                    });
+
+                    //sum strikes for topography
+                    tempRow = categoricalStrikeAssignments.topography[options.topography];
+                    $.each(tempRow, function (idx, val) {
+                        strikes[idx] = strikes[idx] + val;
+                    });
+
+                    //sum strikes for soilType
+                    tempRow = categoricalStrikeAssignments.soilType[options.soilType];
+                    $.each(tempRow, function (idx, val) {
+                        strikes[idx] = strikes[idx] + val;
+                    });
+
+                    //find max strike and return it complexit
+                    if (strikes.complex >= strikes.typical && strikes.complex >= strikes.simple) {
+                        return designComplexity.complex;
+                    } else if (strikes.typical >= strikes.complex && strikes.typical >= strikes.simple) {
+                        return designComplexity.typical;
+                    } else {
+                        return designComplexity.simple;
+                    }
+                } else {
+                    return -1;
+                }
+            }
+        });
+        /* END designcomplexity.js */
+        
+        /* BEGIN costenginesrvc.js */
+        angular.module('nscwebappApp')
+        .factory('costEngineSrvc', function (designComplexity) {
+
+            var dataVersion = '0.0.1';
+            var eqnsVersion = '0,0.1';
+            var dataReferenceYear = 2014; //used for inflation calcs
+            var defaultRoundDP = 3; // default number of decimal places to round to
+            var costData = {
+                DC: {
+                    "Capital": {"simpleEquation": "y = 0.2142x + 159.75", "simpleRSquared": "R² = 1", "simple_upperEquation": "y = 1.9321x + 1041.3", "simple_upperRSquared": "R² = 1", "typicalEquation": "y = 3.65x + 1922.8", "typicalRSquared": "R² = 1", "typical_upperEquation": "y = 4.6869x + 2864.7", "typical_upperRSquared": "R² = 1", "complexEquation": "y = 5.7238x + 3806.5", "complexRSquared": "R² = 1", "complex_upperEquation": "y = 6.7608x + 4748.3", "complex_upperRSquared": "R² = 1", },
+                    "Maintenance": {"simpleEquation": "y = 0.05x + 1E-13", "simpleRSquared": "R² = 1", "complexEquation": "y = 0.0751x", "complexRSquared": "R² = 1", },
+                },
+                RH: {
+                    "Capital": {"simpleEquation": "y = 0.3844x + 61.8", "simpleRSquared": "R² = 1", "simple_upperEquation": "y = 0.577x + 1812.9", "simple_upperRSquared": "R² = 1", "typicalEquation": "y = 0.7697x + 3564", "typicalRSquared": "R² = 1", "typical_upperEquation": "y = 1.0891x + 3957", "typical_upperRSquared": "R² = 1", "complexEquation": "y = 1.4085x + 4350", "complexRSquared": "R² = 1", "complex_upperEquation": "y = 1.728x + 4743", "complex_upperRSquared": "R² = 1", },
+                    "Maintenance": {"simpleEquation": "y = 0.1003x + 0.0002", "simpleRSquared": "R² = 1", "complexEquation": "y = 0.2407x + 0.0006", "complexRSquared": "R² = 1", },
+                },
+                RG: {
+                    "Capital": {"simpleEquation": "y = 0.2717x + 346.08", "simpleRSquared": "R² = 1", "simple_upperEquation": "y = 0.9204x + 2021", "simple_upperRSquared": "R² = 1", "typicalEquation": "y = 1.5691x + 3696", "typicalRSquared": "R² = 1", "typical_upperEquation": "y = 3.29x + 6873.8", "typical_upperRSquared": "R² = 1", "complexEquation": "y = 5.0109x + 10052", "complexRSquared": "R² = 1", "complex_upperEquation": "y = 6.7319x + 13229", "complex_upperRSquared": "R² = 1", },
+                    "Maintenance": {"simpleEquation": "y = 0.0675x", "simpleRSquared": "R² = 1", "complexEquation": "y = 1.632x", "complexRSquared": "R² = 1", },
+                },
+                GR: {
+                    "Capital": {"simpleEquation": "y = 0.5421x + 1975.2", "simpleRSquared": "R² = 1", "simple_upperEquation": "y = 1.5215x + 2631.6", "simple_upperRSquared": "R² = 1", "typicalEquation": "y = 2.5009x + 3288", "typicalRSquared": "R² = 1", "typical_upperEquation": "y = 5.0205x + 12056", "typical_upperRSquared": "R² = 1", "complexEquation": "y = 7.5401x + 20824", "complexRSquared": "R² = 1", "complex_upperEquation": "y = 10.06x + 29592", "complex_upperRSquared": "R² = 1", },
+                    "Maintenance": {"simpleEquation": "y = 0.0281x + 6E-14", "simpleRSquared": "R² = 1", "complexEquation": "y = 0.2821x + 1E-12", "complexRSquared": "R² = 1", },
+                },
+                SP: {
+                    "Capital": {"simpleEquation": "y = 0.5592x + 1928.2", "simpleRSquared": "R² = 1", "simple_upperEquation": "y = 1.6359x + 2254.4", "simple_upperRSquared": "R² = 1", "typicalEquation": "y = 2.7125x + 2580.6", "typicalRSquared": "R² = 1", "typical_upperEquation": "y = 6.5348x + 8371.9", "typical_upperRSquared": "R² = 1", "complexEquation": "y = 10.357x + 14163", "complexRSquared": "R² = 1", "complex_upperEquation": "y = 14.179x + 19955", "complex_upperRSquared": "R² = 1", },
+                    "Maintenance": {"simpleEquation": "y = 0.045x", "simpleRSquared": "R² = 1", "complexEquation": "y = 1.0697x + 4E-12", "complexRSquared": "R² = 1", },
+                },
+                IB: {
+                    "Capital": {"simpleEquation": "y = 0.8205x + 1928.2", "simpleRSquared": "R² = 1", "simple_upperEquation": "y = 0.8339x + 2896.1", "simple_upperRSquared": "R² = 1", "typicalEquation": "y = 0.8473x + 3864", "typicalRSquared": "R² = 1", "typical_upperEquation": "y = 2.3002x + 8457", "typical_upperRSquared": "R² = 1", "complexEquation": "y = 3.7531x + 13050", "complexRSquared": "R² = 1", "complex_upperEquation": "y = 5.2059x + 17643", "complex_upperRSquared": "R² = 1", },
+                    "Maintenance": {"simpleEquation": "y = 0.0487x + 2E-13", "simpleRSquared": "R² = 1", "complexEquation": "y = 1.7689x + 8E-12", "complexRSquared": "R² = 1", },
+                },
+                PP: {
+                    "Capital": {"simpleEquation": "y = 2.3502x + 1545", "simpleRSquared": "R² = 1", "simple_upperEquation": "y = 3.5355x + 1672.5", "simple_upperRSquared": "R² = 1", "typicalEquation": "y = 4.7209x + 1800", "typicalRSquared": "R² = 1", "typical_upperEquation": "y = 6.2951x + 2775", "typical_upperRSquared": "R² = 1", "complexEquation": "y = 7.8694x + 3750", "complexRSquared": "R² = 1", "complex_upperEquation": "y = 9.4437x + 4725", "complex_upperRSquared": "R² = 1", },
+                    "Maintenance": {"simpleEquation": "y = 0.0563x", "simpleRSquared": "R² = 1", "complexEquation": "y = 0.3075x + 1E-12", "complexRSquared": "R² = 1", },
+                },
+                VS: {
+                    "Capital": {"simpleEquation": "y = 0.2997x + 772.5", "simpleRSquared": "R² = 1", "simple_upperEquation": "y = 0.4329x + 1061.2", "simple_upperRSquared": "R² = 1", "typicalEquation": "y = 0.5662x + 1350", "typicalRSquared": "R² = 1", "typical_upperEquation": "y = 0.7534x + 1612.5", "typical_upperRSquared": "R² = 1", "complexEquation": "y = 0.9406x + 1875", "complexRSquared": "R² = 1", "complex_upperEquation": "y = 1.1278x + 2137.5", "complex_upperRSquared": "R² = 1", },
+                    "Maintenance": {"simpleEquation": "y = 0.0626x", "simpleRSquared": "R² = 1", "complexEquation": "y = 0.1215x - 5E-13", "complexRSquared": "R² = 1", },
+                }
+            };
+            //begin psuedo enums
+            var bmpTypes = {
+                DC: 0, //impervious disconnection
+                RH: 1, //rain harvesting
+                RG: 2, //rain garden
+                GR: 3, //green roofs
+                SP: 4, //street planter
+                IB: 5, //infiltration basin
+                PP: 6, //permeable pavement
+                VS: 7//vegetated swale
+            };
+            var defaultBMPProps = {
+                bmpType: bmpTypes.RG,
+                footprintAreaSqFt: 0,
+                capacityVolGals: 0,
+                capitalCost: -1,
+                maintCost: -1
+            };
+            // Public API here
+            var service = {
+                dataVersion:dataVersion,
+                eqnsVersion:eqnsVersion,
+                dataReferenceYear:dataReferenceYear,
+                validateInputs: validateInputs,
+                parseLinearEqn: parseLinearEqn,
+                computeCost: computeCost,
+                computeLIDCtrlCost:computeLIDCtrlCost,
+                computeLIDCtrlCosts:computeLIDCtrlCosts,
+                
+                defaultRoundDP:defaultRoundDP,
+                dpRound: dpRound
+            };
+            return service;
+            ///////////////////////////
+            
+            // utility function to round numbers to various decimal places
+            function dpRound(val, decimalPlaces) {
+                var exp = Math.pow(10, decimalPlaces);
+                var rslt = Math.round(val, exp) / exp;
+                if(Math.abs(rslt) === 0) {
+                    rslt = Math.abs(rslt);
+                }
+                return rslt;
+            }
+
+            //validates the inputs used by this service consisting of a BMP property bag and
+            //a design complexity property bag. Delegates validation of design complexity to appropriate service
+            function validateInputs(inputType, inputs) {
+                switch (inputType) {
+                    case 'BMP':
+                        return validateBMPInputs(inputs);
+                        break;
+                    case 'Complexity':
+                        return designComplexity.validateInputs(inputs);
+                        break;
+                    default:
+                        return false;
+                }
+            }
+
+            //validates BMP property bag passed in as inputs to the cost engine service
+            function validateBMPInputs(options) {
+                var flag = false;
+                options = angular.extend({}, defaultBMPProps, options);
+                flag = (typeof (options.footprintAreaSqFt) === 'number' && options.bmpType > -1 && options.bmpType < 8); //check for valid BMP type
+
+                flag = flag && (options.footprintAreaSqFt !== undefined && typeof (options.footprintAreaSqFt) === 'number' &&
+                        options.footprintAreaSqFt >= 0);
+                flag = flag && (options.capacityVolGals !== undefined && typeof (options.capacityVolGals) === 'number' &&
+                        options.capacityVolGals >= 0);
+                return flag;
+            }
+
+            //utility function that valides arguments are numeric 
+            function validateNumeric(options) {
+                var flag = true;
+                $.each(options, function (idx, val) {
+                    flag = flag && (typeof (val) === 'number');
+                });
+                return flag;
+            }
+
+            //function to parse linear regression equations to isolate slope and intercept
+            function parseLinearEqn(eqnstr) {
+                var slope = -1;
+                var intercept = -1;
+                var rsltFail = {status: false, slope: -1, intercept: -1};
+                var startTokens = 'y=';
+                var delim = '-';
+                var temparr = [];
+                if (eqnstr.indexOf("+") > 1) {
+                    delim = '+';
+                }
+                if (eqnstr.indexOf("x") < 1 || eqnstr.indexOf('y') < 0) {
+                    return rsltFail;
+                }
+
+                temparr = eqnstr.replace(/ /g, '').replace(startTokens, '').split(delim);
+                try {
+                    slope = Number(temparr[0].substring(0, temparr[0].length - 1));
+                    if (temparr.length > 1) {
+                        intercept = Number(temparr[1]);
+                    } else {
+                        intercept = 0;
+                    }
+                } catch (error) {
+                    console.log(error);
+                    return rsltFail;
+                }
+                return {status: true, slope: slope, intercept: intercept};
+            }
+
+            //Computes cost given cost curve, intercept, slope, inflation factor and regional adjustment factor
+            function computeCost(bmpSize, ccIntercept, ccSlope, inflation, regionalFactor) {
+                var flag = validateNumeric([bmpSize, ccIntercept, ccSlope, inflation, regionalFactor]);
+                if (flag) {
+                    return dpRound(bmpSize * ccIntercept * ccSlope * inflation * regionalFactor, defaultRoundDP);
+                } else {
+                    return flag;
+                }
+            }
+            
+            //TODO write tests
+            function computeLIDCtrlCost(lid,inflation, regionalFactor){
+                var costEqn = {};
+                
+                switch(lid.type){
+                    case 0: //DC
+                        lid.costQty = lid.footprintAreaSqFt;
+                        break;
+                    case 1: //RG
+                        lid.costQty = lid.footprintAreaSqFt;
+                        break;
+                }
+                //compute capital cost
+                costEqn = parseLinearEqn(lid.costData.capital); 
+                lid.capCost = computeCost(lid.costQty, costEqn.intercept, costEqn.slope, inflation, regionalFactor);
+                
+                //compute maintenance cost
+                costEqn = parseLinearEqn(lid.costData.maintenance); 
+                lid.maintCost = computeCost(lid.costQty, costEqn.intercept, costEqn.slope, inflation, regionalFactor);
+                
+            }
+            
+            //TODO write tests
+            function computeLIDCtrlCosts(lidObjs,inflation, regionalFactor){
+               $.each(lidObjs,function(idx,val){
+                   computeLIDCtrlCost(val,inflation, regionalFactor)
+               });
+            }
+            
+        });
+        /* END costenginesrvc.js */
+                /* END chartengine.js */
+        angular.module('nscwebappApp')
+        .service('chartengine', function () {
+
+            //    var bmpTypes = ['Disconnection', 'Rain Harvesting','Rain Gardens',
+            //'Green Roofs','Street Planters','Infiltration Basins','Permeable Pavement', 'Vegetated Swale'];
+            var costData = {
+                DC: {
+                    capital: {amount: 81537, complexity: 1},
+                    maintenance: {amount: 100, complexity: -1},
+                },
+                RH: {
+                    capital: {amount: 146123, complexity: 1},
+                    maintenance: {amount: 100, complexity: -1}
+                },
+                RG: {
+                    capital: {amount: 103596, complexity: 1},
+                    maintenance: {amount: 100, complexity: -1}
+                },
+                GR: {
+                    capital: {amount: 207989, complexity: 1},
+                    maintenance: {amount: 100, complexity: -1}
+                },
+                SP: {
+                    capital: {amount: 214420, complexity: 1},
+                    maintenance: {amount: 100, complexity: -1}
+                },
+                IB: {
+                    capital: {amount: 313734, complexity: 1},
+                    maintenance: {amount: 100, complexity: -1},
+                },
+                PP: {
+                    capital: {amount: 894613, complexity: 1},
+                    maintenance: {amount: 100, complexity: -1},
+                },
+                VS: {
+                    capital: {amount: 114641, complexity: 1},
+                    maintenance: {amount: 100, complexity: -1},
+                }
+            };
+            // Public API here
+            var service = {
+                validateInputs: validateInputs,
+                mockupCharts: mockupCharts
+            };
+            return service;
+            ///////////////////////////
+            function validateInputs() {
+
+            }
+
+            function mockupCharts() {
+                var chartTitles = {
+                    baseline: 'Baseline Scenario',
+                    current: 'Current Scenario'
+                };
+                var chartTypes = {
+                    bar: 'bar',
+                    pie: 'pie',
+                    donut: 'donut'
+                };
+                var dollarLabelFormatFxn = function (value, ratio, id) {
+                    return d3.format('$0,000')(value);
+                };
+
+                var chartData = formatDataForChart(costData);
+
+                //3. generate baseline bar chart - capital cost
+                var bc5 = generateChart('#bc-bar', chartTypes.bar, chartData.capital, chartData.capitalErrors);
+                var bc6 = generateChart('#ac-bar', chartTypes.bar, chartData.capital, chartData.capitalErrors);
+
+                //3. generate baseline bar chart - capital cost
+                var bm5 = generateChart('#bm-bar', chartTypes.bar, chartData.capital, chartData.capitalErrors);
+                var bm6 = generateChart('#am-bar', chartTypes.bar, chartData.capital, chartData.capitalErrors);
+
+            }
+
+            function formatDataForChart(costData) {
+                var tempNum = 0;
+                var capitalCostResults = [];
+                var capitalCostResultsHigh = [];
+                var capitalErrors = {};
+
+                var maintCostResults = [];
+                var maintCostResultsHigh = [];
+                var maintenanceErrors = {};
+
+                var labelFormatsCap = {};
+                var labelFormatsMaint = {};
+                var tempHighFrac = 1.15;
+
+                $.each(costData, function (idx, val) {
+                    tempNum = parseFloat(val.capital.amount) * tempHighFrac;
+                    capitalCostResults.push([idx, val.capital.amount]);
+                    capitalCostResultsHigh.push([idx, tempNum]);
+                    capitalErrors[idx] = [tempNum - val.capital.amount];
+
+                    tempNum = parseFloat(val.maintenance.amount) * tempHighFrac;
+                    maintCostResults.push([idx, val.maintenance.amount]);
+                    maintCostResultsHigh.push([idx, parseFloat(val.maintenance.amount) * tempHighFrac]);
+                    maintenanceErrors[idx] = [tempNum - val.maintenance.amount];
+
+                    labelFormatsCap[idx] = d3.format('$');
+                    labelFormatsMaint[idx] = d3.format('$');
+                });
+
+                return {
+                    capital: capitalCostResults,
+                    capitalHigh: capitalCostResultsHigh,
+                    capitalErrors: capitalErrors,
+                    maintenance: maintCostResults,
+                    maintenanceHigh: maintCostResultsHigh,
+                    maintenanceErrors: maintenanceErrors,
+                    labelFormatsCap: labelFormatsCap,
+                    labelFormatsMaint: labelFormatsMaint
+                };
+            }
+
+            function generateChart(container, chartType, chartColumns, chartErrors, title, labelFormatFxn) {
+
+                var chart = c3.generate({
+                    bindto: container || '#chart',
+                    /*color: {
+                     pattern: ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5', '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5']
+                     },*/
+                    data: {
+                        columns: chartColumns,
+                        type: chartType || 'bar',
+                        errors: chartErrors
+                    },
+                    color: {
+                        //pattern: ['#fff7fb','#ece7f2','#d0d1e6','#a6bddb','#74a9cf','#3690c0','#0570b0','#034e7b']
+                        pattern: ['#ffffd9', '#edf8b1', '#c7e9b4', '#7fcdbb', '#41b6c4', '#1d91c0', '#225ea8', '#4C6C84'] //, '#0c2c84'
+                    },
+                    labels: {
+                        format: function (v, id, i, j) {
+                            return d3.format('$');
+                        }
+                    },
+                    donut: {
+                        title: title || 'NA',
+                        label: {
+                            format: labelFormatFxn
+                        }
+                    },
+                    bar: {
+                        width: {
+                            ratio: 1 // this makes bar width 50% of length between ticks
+                        }
+                    },
+                    tooltip: {
+                        grouped: false, // Default true
+                        format: {
+                            title: function (d, t1, t2) {
+                                console.log(t1, t2);
+                                //return 'Data ' + d;
+                                //return bmpTypes[d];
+                                return '';
+                            },
+                            value: function (value, ratio, id) {
+                                //var format = id === 'data1' ? d3.format(',') : d3.format('$');
+                                var format = d3.format("$,");
+                                return format(value);
+                            }
+                        }
+                    },
+                    axis: {
+                        x: {
+                            type: 'category',
+                            tick: {
+                                values: ['']
+                            }
+                        }
+                        ,
+                        y: {
+                            tick: {
+                                format: d3.format("$,")
+                            }
+                        }
+                    }
+                }
+                );
+                return chart;
+            }
+        });
+        /* END chartengine.js */
+        
+        (function (c3) {
+            var KLASS;
+
+            KLASS = {
+                chartErrorBars: 'chart-error-bars',
+                chartErrorBar: 'chart-error-bar',
+                errorLine: 'error-bar-line'
+            };
+
+            var errorBarY;
+
+            errorBarY = function ($$, d, sign) {
+                var error, ref, ref1;
+                error = ((ref = $$.config.data_errors) !== null ? (ref1 = ref[d.id]) !== null ? ref1[d.index] : void 0 : void 0) || 0;
+                return $$.getYScale(d.id)(d.value + sign * error);
+            };
+
+            var errorBarPoints;
+
+            errorBarPoints = function (d, index) {
+                var $$, barIndices, bottom, center, getPoints, height, left, lowerErrorBarY, points, right, top, upperErrorBarY, width, y0, yScale;
+                $$ = this;
+                barIndices = $$.getShapeIndices($$.isBarType);
+                getPoints = $$.generateGetBarPoints(barIndices);
+                points = getPoints(d, d.index);
+                left = points[0][0];
+                right = points[2][0];
+                top = points[1][1];
+                bottom = points[0][1];
+                width = right - left;
+                height = bottom - top;
+                center = (left + right) / 2;
+                upperErrorBarY = errorBarY($$, d, -1);
+                lowerErrorBarY = errorBarY($$, d, 1);
+                yScale = $$.getYScale;
+                y0 = yScale.call($$, d.id)(0);
+                return [upperErrorBarY, lowerErrorBarY, center - width / 5, center + width / 5, center][index];
+            };
+
+
+            var errorBarLinePointX1, errorBarLinePointX2, errorBarLinePointY1, errorBarLinePointY2, errorBarLinePoints,
+                    slice = [].slice;
+
+            errorBarLinePoints = {
+                top: [2, 3, 1, 1],
+                vertical: [4, 4, 0, 1],
+                bottom: [2, 3, 0, 0]
+            };
+
+            errorBarLinePointX1 = function (d) {
+                return errorBarPoints.call(this, d.data, errorBarLinePoints[d.location][0]);
+            };
+
+            errorBarLinePointX2 = function (d) {
+                return errorBarPoints.call(this, d.data, errorBarLinePoints[d.location][1]);
+            };
+
+            errorBarLinePointY1 = function (d) {
+                return errorBarPoints.call(this, d.data, errorBarLinePoints[d.location][2]);
+            };
+
+            errorBarLinePointY2 = function (d) {
+                return errorBarPoints.call(this, d.data, errorBarLinePoints[d.location][3]);
+            };
+
+            c3.chart.internal.fn.redrawBar = _.wrap(c3.chart.internal.fn.redrawBar, function (f, durationForExit) {
+                var $$, barData, barIndices, errorBar, getPoints, lines;
+                f.apply(this, [durationForExit]);
+                $$ = this;
+                barData = $$.barData.bind($$);
+                barIndices = $$.getShapeIndices($$.isBarType);
+                getPoints = $$.generateGetBarPoints(barIndices);
+                errorBar = $$.main.selectAll('.' + c3.chart.internal.fn.CLASS.bars).selectAll('.' + KLASS.chartErrorBar).data(function (d) {
+                    var ref;
+                    if (((ref = $$.config.data_errors[d.id]) !== null ? ref.length : void 0) > 0) {
+                        return barData(d);
+                    } else {
+                        return [];
+                    }
+                });
+                errorBar.enter().append('g').attr('class', function (d) {
+                    return [KLASS.chartErrorBar, KLASS.chartErrorBar + "-" + d.id + "-" + d.index].join(' ');
+                });
+                errorBar.exit().transition().duration(durationForExit).style('opacity', 0).remove();
+                lines = errorBar.selectAll('.' + KLASS.errorLine).data(function (d) {
+                    return Object.keys(errorBarLinePoints).map(function (location) {
+                        return {
+                            data: d,
+                            location: location
+                        };
+                    });
+                });
+                lines.enter().append('line').attr('class', function (d) {
+                    return [KLASS.errorLine, KLASS.errorLine + "-" + d.location + "-" + d.data.id + "-" + d.data.index].join(' ');
+                }).attr('x1', _.bind(errorBarLinePointX1, $$)).attr('x2', _.bind(errorBarLinePointX2, $$)).attr('y1', _.bind(errorBarLinePointY1, $$)).attr('y2', _.bind(errorBarLinePointY2, $$));
+                return lines.exit().transition().duration(durationForExit).style('opacity', 0).remove();
+            });
+
+            c3.chart.internal.fn.addTransitionForBar = _.wrap(c3.chart.internal.fn.addTransitionForBar, function (f, transitions, drawBar) {
+                var $$;
+                $$ = this;
+                transitions.push($$.main.selectAll('.' + c3.chart.internal.fn.CLASS.bars).selectAll('.' + KLASS.errorLine).attr('x1', _.bind(errorBarLinePointX1, $$)).attr('x2', _.bind(errorBarLinePointX2, $$)).attr('y1', _.bind(errorBarLinePointY1, $$)).attr('y2', _.bind(errorBarLinePointY2, $$)).style("fill", $$.color).style("opacity", 1));
+                return f.call(this, transitions, drawBar);
+            });
+
+            c3.chart.internal.fn.getDefaultConfig = _.wrap(c3.chart.internal.fn.getDefaultConfig, function () {
+                var args, f;
+                f = arguments[0], args = 2 <= arguments.length ? slice.call(arguments, 1) : [];
+                return _.merge(f.apply(this, args), {
+                    data_errors: {}
+                });
+            });
+
+            c3.chart.internal.fn.tooltipPosition = function (data, width, height, element) {
+                var $$, center, chartOffsetX, circles, graphOffsetX, tooltipLeft, tooltipWidth, x, y;
+                $$ = this;
+                if (element instanceof SVGRectElement) {
+                    y = errorBarY($$, data[0], 1);
+                    center = errorBarPoints.call($$, 4, data[0]);
+                    tooltipLeft = $$.getCurrentPaddingLeft();
+                    x = Math.round(center + tooltipLeft - width / 2);
+                    y -= height + 10;
+                } else {
+                    if (!(element instanceof SVGCircleElement)) {
+                        circles = this.getCircles(data[0].index);
+                        element = circles[0][0];
+                    }
+                    chartOffsetX = document.querySelector($$.config.bindto).getBoundingClientRect().left;
+                    graphOffsetX = document.querySelector($$.config.bindto + " g.c3-axis-y").getBoundingClientRect().right;
+                    tooltipWidth = document.getElementById('tooltip').parentNode.clientWidth;
+                    x = parseInt(element.getAttribute('cx')) + graphOffsetX - chartOffsetX - Math.floor(tooltipWidth / 2);
+                    y = element.getAttribute('cy');
+                    y = y - height - 12;
+                }
+                return {
+                    top: y,
+                    left: x
+                };
+            };
+
+            c3.chart.internal.fn.getYDomainMax = _.wrap(c3.chart.internal.fn.getYDomainMax, function (f, targets) {
+                var $$, data, i, j, k, len, v, ys;
+                $$ = this;
+                if ($$.config.data_groups.length > 0) {
+                    console.warn("this extension breaks data.groups.");
+                }
+                ys = $$.getValuesAsIdKeyed(targets);
+                for (k in ys) {
+                    data = ys[k];
+                    if (!(k in $$.config.data_errors)) {
+                        continue;
+                    }
+                    for (i = j = 0, len = data.length; j < len; i = ++j) {
+                        v = data[i];
+                        if ($$.config.data_errors[k][i]) {
+                            data[i] += $$.config.data_errors[k][i];
+                        }
+                    }
+                }
+                return $$.d3.max(Object.keys(ys).map(function (key) {
+                    return $$.d3.max(ys[key]);
+                }));
+            });
+        })(c3);
+        /***** End services.js *****/
+
+        /***** Begin controllers.js *****/
+        angular.module('nscwebappApp.controllers', [])
+
+                .controller('AppCtrl', function ($scope, $ionicModal, $timeout) {
+
+                })
+                .controller('MainCtrl', function (designComplexity, costEngineSrvc, chartengine) {
+                var vm = this;
+                vm.pageTitle = 'Capital Costs';
+                vm.showTabular = true;
+                vm.showGraphical = !vm.showTabular;
+                vm.showCap = true;
+                vm.showMaint = !vm.showCap;
+                vm.showCapitalGraphical = true;
+                vm.showCapitalTabular = true;
+                vm.showMaintGraphical = true;
+                vm.showMaintTabular = true;
+                //TODO replace mock data with computed data
+                vm.estimatedResults = [
+                {id: 'DC', name: 'Disconnection', baseCapLow: '$100', baseCapHigh: '$200', baseMaintLow: '$325', baseMaintHigh: '$575', currentCapLow: '$100', currentCapHigh: '$200', currentMaintLow: '$325', currentMaintHigh: '$575'},
+                {id: 'RH', name: 'Rainwater Harvesting', baseCapLow: '$100', baseCapHigh: '$200', baseMaintLow: '$325', baseMaintHigh: '$575', currentCapLow: '$100', currentCapHigh: '$200', currentMaintLow: '$325', currentMaintHigh: '$575'},
+                {id: 'RG', name: 'Rain Gardens', baseCapLow: '$100', baseCapHigh: '$200', baseMaintLow: '$325', baseMaintHigh: '$575', currentCapLow: '$100', currentCapHigh: '$200', currentMaintLow: '$325', currentMaintHigh: '$575'},
+                {id: 'GR', name: 'Green Roofs', baseCapLow: '$100', baseCapHigh: '$200', baseMaintLow: '$325', baseMaintHigh: '$575', currentCapLow: '$100', currentCapHigh: '$200', currentMaintLow: '$325', currentMaintHigh: '$575'},
+                {id: 'SP', name: 'Street Planters', baseCapLow: '$100', baseCapHigh: '$200', baseMaintLow: '$325', baseMaintHigh: '$575', currentCapLow: '$100', currentCapHigh: '$200', currentMaintLow: '$325', currentMaintHigh: '$575'},
+                {id: 'IB', name: 'Infiltration Basins', baseCapLow: '$100', baseCapHigh: '$200', baseMaintLow: '$325', baseMaintHigh: '$575', currentCapLow: '$100', currentCapHigh: '$200', currentMaintLow: '$325', currentMaintHigh: '$575'},
+                {id: 'PP', name: 'Permeable Pavement', baseCapLow: '$100', baseCapHigh: '$200', baseMaintLow: '$325', baseMaintHigh: '$575', currentCapLow: '$100', currentCapHigh: '$200', currentMaintLow: '$325', currentMaintHigh: '$575'},
+                {id: 'VS', name: 'Vegetated Swales', baseCapLow: '$100', baseCapHigh: '$200', baseMaintLow: '$325', baseMaintHigh: '$575', currentCapLow: '$100', currentCapHigh: '$200', currentMaintLow: '$325', currentMaintHigh: '$575'}
+                ];
+                vm.toggleGraphicalView = toggleGraphicalView;
+                vm.toggleCapMaintViews = toggleCapMaintViews;
+                /* Begin function definitions */
+                /***************************/
+                function toggleGraphicalView(show) {
+                vm.showTabular = show;
+                vm.showGraphical = !vm.showTabular;
+                }
+                function toggleCapMaintViews(show) {
+                vm.showCap = show;
+                vm.showMaint = !vm.showCap;
+                }
+
+                /* Begin excution */
+                /***************************/
+                chartengine.mockupCharts();
+                })
+                .filter('offset', function () {
+                return function (input, start) {
+                start = parseInt(start, 10);
+                return input.slice(start);
+                };
+                });
+        /***** End controllers.js *****/
+
+        </script>
+    </body>
+</html>

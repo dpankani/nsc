@@ -1,0 +1,122 @@
+<ion-view view-title="{{vm.pageTitle}}">
+    <ion-content scroll="false">
+        <div class="row">
+            <!--<div class="col" ng-show="vm.showCap">
+                <h3 class="text-center">Estimate of Probable Capital Costs</h3>
+            </div>
+            <div class="col" ng-show="vm.showMaint">
+                <h3 class="text-center">Estimate of Probable Maintenance Costs</h3>
+            </div>-->
+            <div class="col col-20">
+                <a href="" ng-show="vm.showCap" ng-click="vm.toggleCapMaintViews(false)">Maintenance |</a>
+                <a href="" ng-show="vm.showMaint" ng-click="vm.toggleCapMaintViews(true)">Capital |</a>
+                <a href="" ng-show="vm.showTabular" ng-click="vm.toggleGraphicalView(false)">Graphical |</a>  
+                <a href=""  ng-show="vm.showGraphical" ng-click="vm.toggleGraphicalView(true)">Tabular |</a>  
+                <a href="" >Export</a>
+            </div>
+        </div>
+        <!-- Tabular capital costs -->
+        <div ng-show="vm.showTabular && vm.showCap" class="container-fluid gs-chart-container capital-cost-container">           
+            <div class="row">
+                <div class="col col-lg-6 gs-current-scenario-cont">
+                    <h4 class="text-center">Current Scenario</h4>
+                    <div class="row">
+                        <div class="col col-50">Cost By LID Control Type</div>
+                        <div class="col text-center">Low</div>
+                        <div class="col text-center">High</div>
+                    </div>
+                    <div class="row" ng-repeat="itm in vm.estimatedResults">
+                        <div class="col col-50">{{itm.name}}</div>
+                        <div class="col text-center">{{itm.currentCapLow}}</div>
+                        <div class="col text-center">{{itm.currentCapHigh}}</div>
+                    </div>
+                </div>
+                <div class="col col-lg-6 gs-base-scenario-cont">
+                    <h4 class="text-center">Baseline Scenario</h4>
+                    <div class="row">
+                        <div class="col col-50">Cost By LID Control Type</div>
+                        <div class="col text-center">Low</div>
+                        <div class="col text-center">High</div>
+                    </div>
+                    <div class="row" ng-repeat="itm in vm.estimatedResults">
+                        <div class="col col-50">{{itm.name}}</div>
+                        <div class="col text-center">{{itm.baseCapLow}}</div>
+                        <div class="col text-center">{{itm.baseCapHigh}}</div>
+                    </div>
+                </div>
+            </div>  
+        </div>
+        <!-- Graphical capital costs -->
+        <div ng-show="vm.showGraphical && vm.showCap" class="container-fluid gs-chart-container capital-cost-container">           
+            <div class="row">
+                <div class="col col-lg-6">
+                    <h4 class="text-center">Current Scenario</h4>
+                    <div id="bc-bar"></div>
+                </div>
+                <div class="col col-lg-6 gs-base-scenario-cont">
+                    <h4 class="text-center">Baseline Scenario</h4>
+                    <div id="ac-bar"></div>
+                </div>
+            </div>
+            <h3>Key</h3>
+            <div class="row">
+                <div class="col">
+                    <div ng-repeat="itm in vm.estimatedResults| limitTo:4">{{itm.id}} - {{itm.name}}</div>
+                </div>
+                <div class="col">
+                    <div ng-repeat="itm in vm.estimatedResults| offset:4">{{itm.id}} - {{itm.name}}</div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- Tabular capital costs -->
+        <div ng-show="vm.showTabular && vm.showMaint" class="container-fluid gs-chart-container capital-cost-container">           
+            <div class="row">
+                <div class="col col-lg-6 gs-current-scenario-cont">
+                    <h4 class="text-center">Current Scenario</h4>
+                    <div class="row">
+                        <div class="col col-50">Cost By LID Control Type</div>
+                        <div class="col text-center">Low</div>
+                        <div class="col text-center">High</div>
+                    </div>
+                    <div class="row" ng-repeat="itm in vm.estimatedResults">
+                        <div class="col col-50">{{itm.name}}</div>
+                        <div class="col text-center">{{itm.currentCapLow}}</div>
+                        <div class="col text-center">{{itm.currentCapHigh}}</div>
+                    </div>
+                </div>
+                <div class="col col-lg-6 gs-base-scenario-cont">
+                    <h4 class="text-center">Baseline Scenario</h4>
+                    <div class="row">
+                        <div class="col col-50">Cost By LID Control Type</div>
+                        <div class="col text-center">Low</div>
+                        <div class="col text-center">High</div>
+                    </div>
+                    <div class="row" ng-repeat="itm in vm.estimatedResults">
+                        <div class="col col-50">{{itm.name}}</div>
+                        <div class="col text-center">{{itm.baseCapLow}}</div>
+                        <div class="col text-center">{{itm.baseCapHigh}}</div>
+                    </div>
+                </div>
+            </div>  
+        </div>
+        <!-- Graphical maintenance costs -->
+        <div ng-show="vm.showGraphical && vm.showMaint" class="container-fluid gs-chart-container capital-cost-container">           
+            <div class="row">
+                <div class="col col-lg-6">
+                    <h4 class="text-center">Current Scenario</h4>
+                    <div id="bm-bar"></div>
+                </div>
+                <div class="col col-lg-6 gs-base-scenario-cont">
+                    <h4 class="text-center">Baseline Scenario</h4>
+                    <div id="am-bar"></div>
+                </div>
+            </div>  
+        </div>
+
+    </ion-content>
+</ion-view>
+
+
